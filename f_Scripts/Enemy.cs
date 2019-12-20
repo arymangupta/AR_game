@@ -22,7 +22,7 @@ public class Enemy : Character
     // Update is called once per frame
     void Update()
     {
-        
+        MoveCharacter();
     }
 
     override public  void Init() {
