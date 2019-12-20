@@ -3,10 +3,13 @@ public class Enemy : Character
 {
     // Start is called before the first frame update
 
-    public bool isMoving;
     public float enemydistance;
 
     public float attackRange=1.5f;
+    
+    public float dyingAnimTime= 2f;
+
+    public float damage=1f;
 
     void Start()
     {
@@ -16,7 +19,6 @@ public class Enemy : Character
         if(CharacterAnim==null){
             CharacterAnim = GetComponent<Animator>();
         }
-         isMoving = true;
     }
 
     // Update is called once per frame
@@ -30,6 +32,9 @@ public class Enemy : Character
     }
     override public void ReceiveDamage(float damage) {
         health-=damage;
+        if(health<=0){
+            DestroyCharacter();
+        }
     }
     override public void DamageEffect(){
    
@@ -38,6 +43,8 @@ public class Enemy : Character
     override public void DestroyCharacter(){
         isDead = true;
         CharacterAnim.SetBool("walk", false);
+        CharacterAnim.SetBool("attack", true);
+        Destroy(gameObject, dyingAnimTime);
      
     }
     override public void GiveDamage(float damage){
@@ -54,8 +61,8 @@ public class Enemy : Character
         {
             if (enemydistance <= attackRange)
             {
-                isMoving = false;
-                GiveDamage(damageAmt);
+                GameObject player = GameObject.FindGameObjectWithTag("Player");
+                player.GetComponent<Player>().GiveDamage(damage);
                 DestroyCharacter();
             }
         }

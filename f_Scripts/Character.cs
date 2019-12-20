@@ -11,7 +11,6 @@ using UnityEngine.UI;
    public Weapon weapon;
     public Animator CharacterAnim;
    public float moveSpeed;
-   public float damageAmt;
     public bool isDead;
     public bool canAttack;
 

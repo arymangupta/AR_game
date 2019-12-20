@@ -1,10 +1,11 @@
-﻿
+﻿using UnityEngine.UI;
 public class Player : Character
 {
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        Init();
     }
 
     // Update is called once per frame
@@ -15,6 +16,7 @@ public class Player : Character
     override public  void Init() {
         weapon = GetComponent<Weapon>();
         isDead = false;
+        weapon.isAuthorised = true;
     }
     override public void ReceiveDamage(float damage) {
         DamageEffect();
