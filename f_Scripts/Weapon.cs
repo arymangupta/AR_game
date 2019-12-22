@@ -4,18 +4,22 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
-    // Start is called before the first frame update
 
+     //Public variables
     public float damageAmt=1;
-    public float coolDownTimeInterval = 0.5f;
+    public float coolDownTimeInterval = 2f;
 
     public float muzzelFlash_Length=0.2f;
 
-    public GameObject muzzel;
+    public GameObject muzzelFlash;
 
     public bool canFire = true;
 
     public bool isAuthorised=false; // can a character use the weapon
+
+    public GameObject bullet;
+
+    public GameObject muzzelPoint;
 
     public enum WeaponCategory {
         PISTOL , RIFLE  , LASER  , MACHINEGUN
@@ -25,6 +29,7 @@ public class Weapon : MonoBehaviour
 
     public AudioSource weaponSound;
 
+    //Private variables
     private Ray bullets;
 
     private float CoolDownTime;
@@ -39,7 +44,10 @@ public class Weapon : MonoBehaviour
             break;
         }
         */
-        if(!muzzel){
+        if(transform.tag.Equals("Player")){
+            isAuthorised = true;
+        }
+        if(!muzzelFlash){
             Debug.LogError("Muzzel is null");
         }
     }
@@ -74,7 +82,11 @@ public class Weapon : MonoBehaviour
             }
         }
     }
-    public void Shoot()
+
+    public void Shoot(){
+        ShootRaysact();
+    }
+    public void ShootRaysact()
     {
         if (!canFire)
             return;
@@ -84,23 +96,27 @@ public class Weapon : MonoBehaviour
             Debug.Log("Played");
             weaponSound.Play();
         }
-        muzzel.transform.localScale = Vector3.zero;
-        iTween.PunchScale(muzzel, Vector3.one, muzzelFlash_Length);
+        muzzelFlash.transform.localScale = Vector3.zero;
+        iTween.PunchScale(muzzelFlash, Vector3.one, muzzelFlash_Length);
 
         bullets = Camera.main.ScreenPointToRay(new Vector3(Screen.width * 0.5f, Screen.height * 0.5f));
 
         if (Physics.Raycast(bullets, out bulletPath, 100))
         {
-            if (bulletPath.transform.tag != "BombEnenmy_LVL_1")
+            if (bulletPath.transform.tag != "Enemy")
                 return;
-            Debug.Log("Hit");
-
-             if (bulletPath.collider.GetType() == typeof(SphereCollider))
+                Debug.Log("Hit");
+             if(bulletPath.collider.GetType() == typeof(SphereCollider))
             {
                 bulletPath.transform.GetComponent<Enemy>().ReceiveDamage(damageAmt);
 
             }
         }
+    }
+
+    public void ShootBullet(){
+        GameObject temp = Instantiate(bullet , muzzelPoint.transform.position , Quaternion.identity);
+        temp.GetComponent<Bullet>().Init();
     }
 
 }
