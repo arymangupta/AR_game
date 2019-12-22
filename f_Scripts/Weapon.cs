@@ -5,7 +5,7 @@ using UnityEngine;
 public class Weapon : MonoBehaviour
 {
     // Start is called before the first frame update
-    public float CoolDownTime;
+
     public float damageAmt=1;
     public float coolDownTimeInterval = 0.5f;
 
@@ -26,6 +26,8 @@ public class Weapon : MonoBehaviour
     public AudioSource weaponSound;
 
     private Ray bullets;
+
+    private float CoolDownTime;
 
     private   RaycastHit bulletPath;
     void Start()
@@ -60,7 +62,7 @@ public class Weapon : MonoBehaviour
     }
 
     public void TouchInput() {
-        if(Input.touchCount>1){
+        if(Input.touchCount>0){
                  Touch touch = Input.GetTouch(0);
             switch(touch.phase){
                 case  TouchPhase.Began:

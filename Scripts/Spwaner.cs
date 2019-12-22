@@ -14,67 +14,68 @@ public class Spwaner : MonoBehaviour
 {
     #region Spawner
     [Header("Spawner")]
+
+    /*Static variables */
     public static Spwaner SpawnerScript;
-    [SerializeField]
-    GameObject EnimiesPrefab;
-    [SerializeField]
-    GroundPlaneManager GroundPlanemanager;
+    public static Vector3 hitposition;//POSITION OF PLAYER
 
-    Camera ArCamera;
+    /*public variables */
+    public GameObject EnimiesPrefab;
+    public GroundPlaneManager GroundPlanemanager;
 
-    public static Vector3 Hitposition;//POSITION OF PLAYER
-
-    float SpawnTimer;
-    float SpawnTime;
+    public float spawnTime = 5f;
+    float spawnTimer;
     bool IsGrounded;
-    public float SpawnDistance=6;
-    public int n;
-    bool Spwan;
+    public float SpawnDistance = 6;
+    public readonly bool isGrounded;
     public GameManager gameManager;
     #endregion
 
+    /*private variables */
+    Camera ArCamera;
+    private ObjectPool objectPool;
+    RaycastHit RayHit;
+    Vector3 RayOrigin;
+    Vector3 RayDirection;
 
-
-
-    public readonly bool isGrounded;
     private void Awake()
     {
         Application.targetFrameRate = 30;
+        objectPool = new ObjectPool();
+        objectPool.Init();
     }
     private void Start()
     {
         ArCamera = Camera.main;
+        spawnTimer = spawnTime;
 
     }
 
     private void FixedUpdate()
     {
-
-        Debug.Log(IsGrounded);
-        Debug.Log(SpawnTimer);
-        SpawnEnemies();
+        Spawner();
     }
     #region Spwaner Function
-    public void SpawnEnemies()
+    public void Spawner()
     {
-        SpawnTime = ScenceManager.Levles;
         if (!GroundPlanemanager.IsPlaneDetected)
         {
             return;
         }
 
+        if (IsGrounded && !gameManager.IsGameOver)
+            spawnTimer -= Time.deltaTime;
 
-        Vector3 RayOrigin = ArCamera.transform.position;
-        Vector3 RayDirection = Vector3.down;
 
-        RaycastHit RayHit;
+         RayOrigin = ArCamera.transform.position;
+         RayDirection = Vector3.down;
 
         if (Physics.Raycast(RayOrigin, RayDirection, out RayHit))
         {
             if (RayHit.transform.tag == "Ground")
             {
                 IsGrounded = true;
-                Hitposition = RayHit.point;
+                hitposition = RayHit.point;
                 RayHit.transform.position = RayHit.point;
             }
             else
@@ -83,27 +84,35 @@ public class Spwaner : MonoBehaviour
             }
 
         }
-        if (IsGrounded && !gameManager.IsGameOver)
 
-            SpawnTimer -= Time.deltaTime;
-
-        if (SpawnTimer <= 0)
+        if (spawnTimer <= 0)
         {
-            Spawning();
-            SpawnTimer = 5;
-            Spwan = false;
+            SpawnEnemy();
+            spawnTimer = spawnTime;
         }
     }
-    void Spawning()
+    void SpawnEnemy()
     {
         Debug.Log("Spawwned");
+        Vector3 spwanPoint = CreateSpawnPoint(hitposition);
+        GameObject enemyInstance = objectPool.GetGameObject();
+        objectPool.SetGameObjectTransform(enemyInstance, spwanPoint, Quaternion.identity, Vector3.one);
+        /* Make enemy ready for action */
+        enemyInstance.GetComponent<Enemy>().InitEmeny(objectPool);
+
+    }
+
+    Vector3 CreateSpawnPoint(Vector3 hit)
+    {
         Vector3 CameraForward = ArCamera.transform.position;
         CameraForward.y = 0;
         CameraForward.Normalize();
-        Vector3 SpwanPoint = Hitposition + SpawnDistance * CameraForward;
-        SpwanPoint = Quaternion.AngleAxis(Random.Range(-45, 45), Vector3.up) * SpwanPoint;
-        GameObject EnimeInstance = Instantiate(EnimiesPrefab, SpwanPoint, Quaternion.identity);
+        Vector3 spwanPoint = hit + SpawnDistance * CameraForward;
+        spwanPoint = Quaternion.AngleAxis(Random.Range(-45, 45), Vector3.up) * spwanPoint;
+        return spwanPoint;
+
     }
+
     #endregion
 
 

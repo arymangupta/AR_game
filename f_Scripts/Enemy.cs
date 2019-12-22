@@ -1,74 +1,105 @@
 ﻿using UnityEngine;
-public class Enemy : Character
+[RequireComponent(typeof(Animator))]
+public class Enemy : MonoBehaviour
 {
-    // Start is called before the first frame update
 
-    public float enemydistance;
+    // public variables
+    public float health = 1f;
+    public float attackRange = 1.5f;
+    public float moveSpeed = 1;
+    public float dyingAnimTime = 2f;
 
-    public float attackRange=1.5f;
-    
-    public float dyingAnimTime= 2f;
+    public float damage = 1f;
+    public bool isDead = true;
 
-    public float damage=1f;
+    public bool ememyDebug = false;
+
+    // Private variables
+    private float enemydistance;
+    private GameObject toFollow;
+    private Animator characterAnim;
+    private Renderer myRenderer;
+    private ObjectPool myobjPool;
+    private GameObject player;
+
 
     void Start()
     {
-        if(toFollow==null){
+      isDead = true;
+      if(ememyDebug){
+          InitEmeny();
+      }
+    }
+    public void InitEmeny(ObjectPool objectPool = null)
+    {
+         myobjPool = objectPool;
+
+        if (toFollow == null)
+        {
             toFollow = Camera.main.gameObject;
         }
-        if(CharacterAnim==null){
-            CharacterAnim = GetComponent<Animator>();
+        if (characterAnim == null)
+        {
+            characterAnim = GetComponent<Animator>();
         }
+
+        player = GameObject.FindGameObjectWithTag("Player");
+        isDead = false;
     }
 
     // Update is called once per frame
     void Update()
     {
         MoveCharacter();
+        DisplayDirection();
     }
-
-    override public  void Init() {
-       
-    }
-    override public void ReceiveDamage(float damage) {
-        health-=damage;
-        if(health<=0){
+    public void ReceiveDamage(float damage)
+    {
+        health -= damage;
+        if (health <= 0)
+        {
             DestroyCharacter();
         }
     }
-    override public void DamageEffect(){
-   
-    }
-
-    override public void DestroyCharacter(){
-        isDead = true;
-        CharacterAnim.SetBool("walk", false);
-        CharacterAnim.SetBool("attack", true);
-        Destroy(gameObject, dyingAnimTime);
-     
-    }
-    override public void GiveDamage(float damage){
-
-    }
-
-    override public void MoveCharacter()
+    public void DamageEffect()
     {
-        if(isDead) return;
+
+    }
+
+    public void DestroyCharacter()
+    {
+        isDead = true;
+        characterAnim.SetBool("walk", false);
+        characterAnim.SetBool("attack", true);
+        if (myobjPool)
+            myobjPool.DestroyGameObject(gameObject, dyingAnimTime);
+        else
+            Debug.LogError("Object pool is null");
+
+    }
+    public void GiveDamage(float damage)
+    {
+
+    }
+
+    public void MoveCharacter()
+    {
+        if (isDead) return;
 
         /*enemy attack and enemy dead logic */
-        enemydistance = Vector3.Distance(Spwaner.Hitposition, transform.position);
+        enemydistance = Vector3.Distance(Spwaner.hitposition, transform.position);
         if (health > 0)
         {
             if (enemydistance <= attackRange)
             {
-                GameObject player = GameObject.FindGameObjectWithTag("Player");
-                player.GetComponent<Player>().GiveDamage(damage);
+
+                player.GetComponent<Player>().ReceiveDamage(damage);
                 DestroyCharacter();
             }
         }
         else
         {
-           DestroyCharacter();
+            DestroyCharacter();
         }
 
         /* direction to look*/
@@ -79,10 +110,33 @@ public class Enemy : Character
 
         /*enemy movemen */
         transform.Translate(direction * moveSpeed * Time.deltaTime, Space.World);
-        CharacterAnim.SetBool("walk", true);
-       
-        
-       
+        characterAnim.SetBool("walk", true);
 
+    }
+
+    public void SetMyObjectPool(ObjectPool objPool)
+    {
+        myobjPool = objPool;
+    }
+
+    void DisplayDirection()
+    {
+        Vector3 screenPoint = Camera.main.WorldToViewportPoint(transform.position);
+        bool isVisible = screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
+        if (!isVisible)
+        {
+            //check if the enemy is right or letf to the player.
+            float enemyX = transform.position.x;
+            float playerX = Camera.main.transform.forward.x*1000f;
+            if (playerX > enemyX)
+            {
+                Debug.Log("Enemy is left hand side of the Player");
+            }
+            else
+            {
+                Debug.Log("Enemy is right hand side of the Player");
+            }
+
+        }
     }
 }
