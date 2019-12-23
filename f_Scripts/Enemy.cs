@@ -70,7 +70,7 @@ public class Enemy : MonoBehaviour
     {
         isDead = true;
         characterAnim.SetBool("walk", false);
-        characterAnim.SetBool("attack", true);
+        characterAnim.SetTrigger("attack");
         if (myobjPool)
             myobjPool.DestroyGameObject(gameObject, dyingAnimTime);
         else
@@ -126,13 +126,11 @@ public class Enemy : MonoBehaviour
         if (!isVisible)
         {
             //check if the enemy is right or letf to the player.
-            float enemyX = transform.position.x;
-            float playerX = Camera.main.transform.forward.x*1000f;
-            if (playerX > enemyX)
+            if (screenPoint.x<0)
             {
                 Debug.Log("Enemy is left hand side of the Player");
             }
-            else
+            else if(screenPoint.x>1)
             {
                 Debug.Log("Enemy is right hand side of the Player");
             }

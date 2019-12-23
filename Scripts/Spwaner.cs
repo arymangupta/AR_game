@@ -53,6 +53,7 @@ public class Spwaner : MonoBehaviour
 
     private void FixedUpdate()
     {
+        CheckGround();
         Spawner();
     }
     #region Spwaner Function
@@ -65,25 +66,6 @@ public class Spwaner : MonoBehaviour
 
         if (IsGrounded && !gameManager.IsGameOver)
             spawnTimer -= Time.deltaTime;
-
-
-         RayOrigin = ArCamera.transform.position;
-         RayDirection = Vector3.down;
-
-        if (Physics.Raycast(RayOrigin, RayDirection, out RayHit))
-        {
-            if (RayHit.transform.tag == "Ground")
-            {
-                IsGrounded = true;
-                hitposition = RayHit.point;
-                RayHit.transform.position = RayHit.point;
-            }
-            else
-            {
-                IsGrounded = false;
-            }
-
-        }
 
         if (spawnTimer <= 0)
         {
@@ -113,6 +95,25 @@ public class Spwaner : MonoBehaviour
 
     }
 
+    void CheckGround(){
+
+         RayOrigin = ArCamera.transform.position;
+         RayDirection = Vector3.down;
+         if (Physics.Raycast(RayOrigin, RayDirection, out RayHit))
+        {
+            if (RayHit.transform.tag == "Ground")
+            {
+                IsGrounded = true;
+                hitposition = RayHit.point;
+                RayHit.transform.position = RayHit.point;
+            }
+            else
+            {
+                IsGrounded = false;
+            }
+
+        }
+    }
     #endregion
 
 

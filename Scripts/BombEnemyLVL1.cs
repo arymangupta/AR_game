@@ -50,8 +50,8 @@ public class BombEnemyLVL1 : MonoBehaviour
         {
             BombEnemyAnim.SetBool("walk", false);
         }
-        Vector3 distance = transform.position - Spwaner.Hitposition;//POSITION OF ENEMY -POSITION OF PLAYER
-         Enemydistance = Vector3.Distance(Spwaner.Hitposition, transform.position);
+        Vector3 distance = transform.position - Spwaner.hitposition;//POSITION OF ENEMY -POSITION OF PLAYER
+        Enemydistance = Vector3.Distance(Spwaner.hitposition, transform.position);
         if (BombHealth > 0)
         {
             if (Enemydistance <= 1.5)
