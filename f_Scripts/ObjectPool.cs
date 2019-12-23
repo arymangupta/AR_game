@@ -9,14 +9,12 @@ public class ObjectPool :MonoBehaviour
     private List<GameObject> freePool = null;
     private List<GameObject> usedPool = null;
 
-    private Vector3 objectHoldpos;
     private IEnumerator coroutine;
 
     public void Init()
     {
         freePool = new List<GameObject>();
         usedPool = new List<GameObject>();
-        objectHoldpos = Vector3.down * int.MaxValue;
         foreach (var obj in GameObject.FindGameObjectsWithTag(tagToFind))
         {
             AddGameObjectToFreePool(obj);
@@ -40,7 +38,6 @@ public class ObjectPool :MonoBehaviour
         }
         freePool.Add(obj);
         obj.SetActive(false);
-        obj.transform.position = objectHoldpos;
     }
     public GameObject GetGameObject()
     {

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 [RequireComponent(typeof(Animator))]
 public class Enemy : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class Enemy : MonoBehaviour
 
     public bool ememyDebug = false;
 
+    public int pixelOffset = 50;
+
     // Private variables
     private float enemydistance;
     private GameObject toFollow;
@@ -22,17 +25,21 @@ public class Enemy : MonoBehaviour
     private ObjectPool myobjPool;
     private GameObject player;
 
+    private Image myUI;
+
+
 
     void Start()
     {
-      isDead = true;
-      if(ememyDebug){
-          InitEmeny();
-      }
+        if (ememyDebug)
+        {
+            InitEmeny();
+        }
     }
     public void InitEmeny(ObjectPool objectPool = null)
     {
-         myobjPool = objectPool;
+        myUI = gameObject.GetComponentInChildren<Image>();
+        myobjPool = objectPool;
 
         if (toFollow == null)
         {
@@ -125,16 +132,36 @@ public class Enemy : MonoBehaviour
         bool isVisible = screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
         if (!isVisible)
         {
-            //check if the enemy is right or letf to the player.
-            if (screenPoint.x<0)
+            myUI.gameObject.SetActive(true);
+            Vector2 screenCor = Camera.main.ViewportToScreenPoint(screenPoint);
+            print("Before " + screenCor);
+            screenCor.x = Mathf.Clamp(screenCor.x, pixelOffset, Screen.width - pixelOffset);
+            if (screenPoint.z < 0)
             {
-                Debug.Log("Enemy is left hand side of the Player");
+                screenCor.y = pixelOffset;
             }
-            else if(screenPoint.x>1)
+            else
             {
-                Debug.Log("Enemy is right hand side of the Player");
+
+                screenCor.y = Mathf.Clamp(screenCor.y, pixelOffset, Screen.height - pixelOffset);
+            }
+            print(screenCor);
+            myUI.rectTransform.position = screenCor;
+
+            //check if the enemy is right or letf to the player.
+            if (screenPoint.x < 0)
+            {
+
+            }
+            else if (screenPoint.x > 1)
+            {
+
             }
 
+        }
+        else
+        {
+            myUI.gameObject.SetActive(false);
         }
     }
 }
